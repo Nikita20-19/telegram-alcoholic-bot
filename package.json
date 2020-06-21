@@ -1,0 +1,19 @@
+{
+  "name": "telegram-bot",
+  "version": "1.0.0",
+  "description": "Find out some information about drinks",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NastaNe/telegram-bot.git"
+  },
+  "author": "Nikita Nedosiekov",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "telegraf": "^3.38.0"
+  }
+}
