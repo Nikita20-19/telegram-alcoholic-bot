@@ -1,9 +1,10 @@
 'use strict';
 
 const {Telegraf} = require('telegraf');
+const axios = require('axios');
 const bot = new Telegraf(process.env.TOKEN);
 
-const drinkResults = require('./functions.js');
+const functions = require('./functions.js');
 
 const CHOOSE_DRINK_MESSAGE = `Выберите что пил`;
 
@@ -21,7 +22,7 @@ const start = ctx => {
   } catch (e) {
     console.log(e)
   }
-  drinkResults.sendStartMessage(ctx, bot);
+  functions.sendStartMessage(ctx, bot);
 };
 
 bot.action('success', ctx => {
@@ -59,24 +60,23 @@ bot.action('back', ctx => {
   ctx.deleteMessage();
   start(ctx)
 });
-
 bot.action('wine', ctx => {
   drinkType = 'wine';
-  return analyzeDrinks(ctx, 'вина', WINE_LIMITS);
+  return functions.analyzeDrinks(ctx, bot, 'вина', WINE_LIMITS);
 });
 
 bot.action('vodka', ctx => {
   drinkType = 'vodka';
-  return analyzeDrinks(ctx, 'водки', VODKA_LIMITS);
+  return functions.analyzeDrinks(ctx, bot, 'водки', VODKA_LIMITS);
 });
 
 bot.action('beer', ctx => {
   drinkType = 'beer';
-  return analyzeDrinks(ctx, 'пива', BEER_LIMITS);
+  return functions.analyzeDrinks(ctx, bot, 'пива', BEER_LIMITS);
 });
 
 bot.action('info', ctx => {
-  return getDrinkInfo(ctx);
+  return getDrinkInfo(ctx, bot);
 });
 
 bot.command('reset', ctx => {
@@ -84,4 +84,26 @@ bot.command('reset', ctx => {
 });
 
 bot.launch();
+
+function getDrinkInfo(ctx, bot) {
+  return axios({
+    "method": "GET",
+    "url": "https://the-cocktail-db.p.rapidapi.com/search.php",
+    "headers": {
+      "content-type": "application/octet-stream",
+      "x-rapidapi-host": "the-cocktail-db.p.rapidapi.com",
+      "x-rapidapi-key": "ebcdc58796msh60b2717a05cec71p105cf0jsn8c1ef2eea50c",
+      "useQueryString": true
+    }, "params": {
+      "i": drinkType
+    }
+  })
+      .then((response) => {
+        bot.telegram.sendMessage(ctx.chat.id, response.data.ingredients[0].strDescription);
+        bot.telegram.sendMessage(ctx.chat.id, `Градус напитка ${response.data.ingredients[0].strABV}`);
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+}
 
