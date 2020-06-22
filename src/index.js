@@ -83,6 +83,10 @@ bot.command('reset', ctx => {
   start(ctx)
 });
 
+bot.command('start', ctx => {
+  start(ctx)
+});
+
 bot.launch();
 
 function getDrinkInfo(ctx, bot) {
